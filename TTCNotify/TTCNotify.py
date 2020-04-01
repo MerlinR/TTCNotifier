@@ -6,6 +6,7 @@ import sys
 import os
 import argparse
 import time
+import datetime
 if sys.platform.startswith('win32'):
     from win10toast import ToastNotifier
 else:
@@ -65,7 +66,7 @@ def searchItems(config):
         parsed.resetTradeList()
         parsed.requestUrl(config)
         parsed.feed(parsed.webContent)
-        
+        print("%s: Scanning..." % datetime.datetime.now().strftime("%H:%M:%S"))
         if prevTradeList:
             cmpTradeLists(prevTradeList, parsed.tradeList)
         prevTradeList = parsed.tradeList 
