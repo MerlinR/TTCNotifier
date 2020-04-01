@@ -6,7 +6,10 @@ import sys
 import os
 import argparse
 import time
-import notify2
+if sys.platform.startswith('win32'):
+    from win10toast import ToastNotifier
+else:
+    import notify2
 from HtmlParser import TTCHTMLParser
 
 def argParse():
@@ -26,14 +29,18 @@ def argParse():
 
 
 def notify(item):
-    notify2.init('ESO Item Notify')
     summary = "{}:{}. {} being sold for {}. {} minutes ago. {}".format(item['where'], item['guild'],
-                                                                item['units'], item['totalprice'], item['seen'], item['link'])
-    n = notify2.Notification(item['name'],
-                             summary)
-    n.set_urgency(notify2.URGENCY_NORMAL)
-    n.show()
-    n.set_timeout(60)
+                                                               item['units'], item['totalprice'], item['seen'], item['link'])
+    if sys.platform.startswith('win32'):
+        toaster = ToastNotifier()
+        toaster.show_toast(item['name'],summary, duration=60)
+        print("Windows notify")
+    else:
+        notify2.init('ESO Item Notify')
+        n = notify2.Notification(item['name'], summary)
+        n.set_urgency(notify2.URGENCY_NORMAL)
+        n.show()
+        n.set_timeout(60)
 
 
 def cmpTradeLists(prev, current):
