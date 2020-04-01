@@ -21,7 +21,7 @@ def argParse():
     arguments.add_argument('url', metavar='L', type=str, nargs=1, help="Url of search")
     arguments.add_argument('-p', '--max-price', dest='max', type=int, help="Max unit price to search")
     arguments.add_argument('-u', '--max-units', dest='units', type=int, help="Max amount of units")
-    arguments.add_argument('-r', '--refresh-time', dest='refresh', type=int, default=45, help="How often to refresh in seconds")
+    arguments.add_argument('-r', '--refresh-time', dest='refresh', type=int, default=90, help="How often to refresh in seconds")
 
     # Arguments
     args = arguments.parse_args()
@@ -34,7 +34,7 @@ def notify(item):
                                                                item['units'], item['totalprice'], item['seen'], item['link'])
     if sys.platform.startswith('win32'):
         toaster = ToastNotifier()
-        toaster.show_toast(item['name'],summary, duration=60)
+        toaster.show_toast(item['name'],summary, duration=30)
         print("Windows notify")
     else:
         notify2.init('ESO Item Notify')
