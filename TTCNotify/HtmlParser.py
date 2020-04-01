@@ -104,7 +104,7 @@ class TTCHTMLParser(HTMLParser):
             elif self._indxCont == 6:
                 self.tradeList[self._indxVal]['unitprice'] = float(data.strip().replace(",", ""))
             elif self._indxCont == 8:
-                self.tradeList[self._indxVal]['units'] = int(data.strip())
+                self.tradeList[self._indxVal]['units'] = int(data.strip().replace(",", ""))
             elif self._indxCont == 10:
                 self.tradeList[self._indxVal]['totalprice'] = int(data.strip().replace(",", ""))
             self._indxCont += 1

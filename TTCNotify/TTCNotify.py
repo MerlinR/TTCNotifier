@@ -67,9 +67,12 @@ def searchItems(config):
         parsed.requestUrl(config)
         parsed.feed(parsed.webContent)
         print("%s: Scanning..." % datetime.datetime.now().strftime("%H:%M:%S"))
-        if prevTradeList:
+        if prevTradeList and parsed.tradeList:
             cmpTradeLists(prevTradeList, parsed.tradeList)
-        prevTradeList = parsed.tradeList 
+        if not parsed.tradeList:
+            print("Failed to discover trade list")
+        else:
+            prevTradeList = parsed.tradeList 
 
         time.sleep(config.refresh)
 
