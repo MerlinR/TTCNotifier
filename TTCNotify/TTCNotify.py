@@ -70,11 +70,11 @@ def searchItems(config):
         if prevTradeList and parsed.tradeList:
             cmpTradeLists(prevTradeList, parsed.tradeList)
         if not parsed.tradeList:
-            print("Failed to discover trade list")
+            print("Failed to discover trade list, puasing 5 minutes to reverse human check")
+            time.sleep(300)
         else:
-            prevTradeList = parsed.tradeList 
-
-        time.sleep(config.refresh)
+            prevTradeList = parsed.tradeList
+            time.sleep(config.refresh)
 
 
 def main():
