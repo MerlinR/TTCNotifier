@@ -42,8 +42,10 @@ class TTCHTMLParser(HTMLParser):
         
         if config.max is not None:
             urlPost["PriceMax"] = config.max
-        if config.units is not None:
-            urlPost["AmountMax"] = config.units
+        if config.unitsmax is not None:
+            urlPost["AmountMax"] = config.unitsmax
+        if config.unitsmin is not None:
+            urlPost["AmountMin"] = config.unitsmin
 
         newQuery = urllib.parse.urlencode(urlPost, doseq=True)
         

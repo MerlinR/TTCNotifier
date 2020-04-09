@@ -20,7 +20,8 @@ def argParse():
     # Core Bullet Arguments
     arguments.add_argument('url', metavar='L', type=str, nargs=1, help="Url of search")
     arguments.add_argument('-p', '--max-price', dest='max', type=int, help="Max unit price to search")
-    arguments.add_argument('-u', '--max-units', dest='units', type=int, help="Max amount of units")
+    arguments.add_argument('-u', '--max-units', dest='unitsmax', type=int, help="Max amount of units")
+    arguments.add_argument('-m', '--min-units', dest='unitsmin', type=int, help="Min amount of units")
     arguments.add_argument('-r', '--refresh-time', dest='refresh', type=int, default=90, help="How often to refresh in seconds")
 
     # Arguments
