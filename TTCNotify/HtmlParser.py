@@ -47,6 +47,10 @@ class TTCHTMLParser(HTMLParser):
         if config.unitsmin is not None:
             urlPost["AmountMin"] = config.unitsmin
 
+        # Ensure searching newest.
+        urlPost["SortBy"] = "LastSeen"
+        urlPost["Order"] = "desc"
+
         newQuery = urllib.parse.urlencode(urlPost, doseq=True)
         
         return self._TAMURL + newQuery

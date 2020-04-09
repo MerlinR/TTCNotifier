@@ -13,21 +13,34 @@ else:
     import notify2
 from HtmlParser import TTCHTMLParser
 
-def argParse():
+def argParse(lineArgs):
     # Arguments
     arguments = argparse.ArgumentParser(description='Simple python tool to notify of item in specific price range.')
 
-    # Core Bullet Arguments
-    arguments.add_argument('url', metavar='L', type=str, nargs=1, help="Url of search")
-    arguments.add_argument('-p', '--max-price', dest='max', type=int, help="Max unit price to search")
-    arguments.add_argument('-u', '--max-units', dest='unitsmax', type=int, help="Max amount of units")
-    arguments.add_argument('-m', '--min-units', dest='unitsmin', type=int, help="Min amount of units")
-    arguments.add_argument('-r', '--refresh-time', dest='refresh', type=int, default=90, help="How often to refresh in seconds")
+    subparsers = arguments.add_subparsers(help='sub-command help')
+    
+    # Add options
+    addparser = subparsers.add_parser('add', help="add search item")
+    addparser.add_argument('url', metavar='L', type=str, help="Url of search")
+    addparser.add_argument('-p', '--max-price', dest='max', type=int, help="Max unit price to search")
+    addparser.add_argument('-u', '--max-units', dest='unitsmax', type=int, help="Max amount of units")
+    addparser.add_argument('-m', '--min-units', dest='unitsmin', type=int, help="Min amount of units")
+    addparser.add_argument('-r', '--refresh-time', dest='refresh', type=int, default=90, help="How often to refresh in seconds")
+    
+    # Remove options
+    removeparser = subparsers.add_parser('remove', help="remove search item")
+    removeparser.add_argument('indx', metavar='indx', type=str, help="Indx value of search item")
+    
+    # list options
+    listparser = subparsers.add_parser('list', help="list all search items")
+    listparser.add_argument('list', action="store_true", default=True, help=argparse.SUPPRESS)
+    
+    # watch options
+    watchparser = subparsers.add_parser('watch', help="watch search item(s)")
+    watchparser.add_argument('watch', type=int, default=0, help="Item to watch or blank to watch all")
 
     # Arguments
-    args = arguments.parse_args()
-    
-    return args
+    return arguments.parse_args(lineArgs.split())
 
 
 def notify(item):
@@ -59,13 +72,13 @@ def cmpTradeLists(prev, current):
         notify(current[i])
 
 
-def searchItems(config):
+def searchItems(opts):
     parsed = TTCHTMLParser()
     prevTradeList = ()
 
     while True:
         parsed.resetTradeList()
-        parsed.requestUrl(config)
+        parsed.requestUrl(opts)
         parsed.feed(parsed.webContent)
         print("%s: Scanning..." % datetime.datetime.now().strftime("%H:%M:%S"))
         if prevTradeList and parsed.tradeList:
@@ -75,13 +88,18 @@ def searchItems(config):
             time.sleep(300)
         else:
             prevTradeList = parsed.tradeList
-            time.sleep(config.refresh)
+            time.sleep(opts.refresh)
 
 
 def main():
-    config = argParse()
-    searchItems(config)
-
+    while True:
+        arguments = input(">>")
+        try:
+            opts = argParse(arguments)
+            if opts.url is not None:
+                searchItems(opts)
+        except:
+            pass
 
 if __name__ == "__main__":
     main()
