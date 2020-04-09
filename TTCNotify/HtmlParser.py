@@ -54,6 +54,17 @@ class TTCHTMLParser(HTMLParser):
         newQuery = urllib.parse.urlencode(urlPost, doseq=True)
         
         return self._TAMURL + newQuery
+    
+    def _nextPage(self, url):
+        parseUrl = urllib.parse.urlparse(url)
+        urlPost = urllib.parse.parse_qs(parseUrl.query, keep_blank_values=True)
+        
+        # Ensure searching newest.
+        urlPost["page"] = int(urlPost["page"]) + 1
+
+        newQuery = urllib.parse.urlencode(urlPost, doseq=True)
+        
+        return self._TAMURL + newQuery
 
     def resetTradeList(self):
         self._indxVal = 0
