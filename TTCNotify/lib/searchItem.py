@@ -13,11 +13,11 @@ from lib.htmlParser import TTCHTMLParser
 
 class SearchItemManager:
     _threads = []
-    listenKey = False
+    listenKey = multiprocessing.Value('l', 0)
 
     def add(self, item):
 
-        searchProcess = multiprocessing.Process(name = self._getSearchItemName(item), target = SearchItemProcess, args=(item,))
+        searchProcess = multiprocessing.Process(name = self._getSearchItemName(item), target = SearchItemProcess, args=(item,listenKey))
         self._threads.append(searchProcess)
         searchProcess.start()
 
@@ -29,9 +29,9 @@ class SearchItemManager:
 
     # Pretty shitty, but ehhhhh
     def watch(self):
-        self.listen = True
+        self.listenKey.value = True
         input("\tPress Enter to stop======================")
-        self.listen = False
+        self.listenKey.value = False
 
     def remove(self, pid):
         for item in self._threads:
@@ -47,15 +47,17 @@ class SearchItemManager:
 
 class SearchItemProcess:
 
-    def __init__(self, item):
+    def __init__(self, item, watched):
         self._name = multiprocessing.current_process().name
         self._pid = multiprocessing.current_process().pid
+        self._watched = watched
         self.searchItem(item)
 
     def notify(self, item, summary):
         if sys.platform.startswith('win32'):
             toaster = ToastNotifier()
             toaster.show_toast(item['name'],summary, duration=30)
+            print("Windows notify")
         else:
             notify2.init('ESO Item Notify')
             n = notify2.Notification(item['name'], summary)
@@ -86,11 +88,13 @@ class SearchItemProcess:
             parsed.resetTradeList()
             parsed.requestUrl(opts)
             parsed.feed(parsed.webContent)
-            print("%s:%s: Scanning..." % (datetime.datetime.now().strftime("%H:%M:%S"), self._name))
+            if self._watched != 0:
+                print("%s:%s: Scanning..." % (datetime.datetime.now().strftime("%H:%M:%S"), self._name))
             if prevTradeList and parsed.tradeList:
                 self.cmpTradeLists(prevTradeList, parsed.tradeList)
             if not parsed.tradeList:
                 print("Failed to discover trade list, pausing 5 minutes to reverse human check")
+                print("This may persisent, please go to %s" % opts.url)
                 time.sleep(300)
             else:
                 prevTradeList = parsed.tradeList
