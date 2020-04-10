@@ -5,13 +5,7 @@
 import sys
 import os
 import argparse
-import time
-import datetime
-if sys.platform.startswith('win32'):
-    from win10toast import ToastNotifier
-else:
-    import notify2
-from HtmlParser import TTCHTMLParser
+from lib.searchItem import SearchItemManager
 
 def argParse(lineArgs):
     # Arguments
@@ -29,7 +23,7 @@ def argParse(lineArgs):
     
     # Remove options
     removeparser = subparsers.add_parser('remove', help="remove search item")
-    removeparser.add_argument('indx', metavar='indx', type=str, help="Indx value of search item")
+    removeparser.add_argument('pid', metavar='pid', type=str, help="PID value of search item to remove")
     
     # list options
     listparser = subparsers.add_parser('list', help="list all search items")
@@ -38,66 +32,32 @@ def argParse(lineArgs):
     # watch options
     watchparser = subparsers.add_parser('watch', help="watch search item(s)")
     watchparser.add_argument('watch', type=int, default=0, help="Item to watch or blank to watch all")
+    
+    # quit qut
+    quitparser = subparsers.add_parser('quit', help="Quit application")
+    quitparser.add_argument('quit', action="store_true", default=True, help=argparse.SUPPRESS)
 
     # Arguments
     return arguments.parse_args(lineArgs.split())
 
 
-def notify(item):
-    summary = "{}:{}. {} being sold for {}. {} minutes ago. {}".format(item['where'], item['guild'],
-                                                               item['units'], item['totalprice'], item['seen'], item['link'])
-    if sys.platform.startswith('win32'):
-        toaster = ToastNotifier()
-        toaster.show_toast(item['name'],summary, duration=30)
-        print("Windows notify")
-    else:
-        notify2.init('ESO Item Notify')
-        n = notify2.Notification(item['name'], summary)
-        n.set_urgency(notify2.URGENCY_NORMAL)
-        n.show()
-        n.set_timeout(60)
-
-
-def cmpTradeLists(prev, current):
-   
-    newTradeCount = 0
-    for item in current:
-        if item['link'] == prev[0]['link']:
-            break
-        else:
-            newTradeCount += 1
-    
-    for i in range(0,newTradeCount):
-        print(current[i])
-        notify(current[i])
-
-
-def searchItems(opts):
-    parsed = TTCHTMLParser()
-    prevTradeList = ()
-
-    while True:
-        parsed.resetTradeList()
-        parsed.requestUrl(opts)
-        parsed.feed(parsed.webContent)
-        print("%s: Scanning..." % datetime.datetime.now().strftime("%H:%M:%S"))
-        if prevTradeList and parsed.tradeList:
-            cmpTradeLists(prevTradeList, parsed.tradeList)
-        if not parsed.tradeList:
-            print("Failed to discover trade list, puasing 5 minutes to reverse human check")
-            time.sleep(300)
-        else:
-            prevTradeList = parsed.tradeList
-            time.sleep(opts.refresh)
-
-
 def main():
+    itemManager = SearchItemManager()
     while True:
-        arguments = input(">>")
+        arguments = input(">> ")
         try:
             opts = argParse(arguments)
-            if opts.url is not None:
-                searchItems(opts)
+            if hasattr(opts, 'url'):
+                itemManager.add(opts)
+            elif hasattr(opts, 'list') and opts.list is True:
+                itemManager.list()
+            elif hasattr(opts, 'pid'):
+                itemManager.remove(opts.pid)
+            elif hasattr(opts, 'watch'):
+                itemManager.watch(opts.watch)
+            elif hasattr(opts, 'quit') and opts.quit is True:
+                print("Exiting, probably with errors")
+                exit()
         except:
             pass
 

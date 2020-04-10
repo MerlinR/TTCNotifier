@@ -27,7 +27,6 @@ class TTCHTMLParser(HTMLParser):
     def requestUrl(self, config):
         if self._url == "":
             self._url = self._alterURL(config)
-        
         self.webContent = ""
 
         with urllib.request.urlopen(self._url) as response:
@@ -37,7 +36,7 @@ class TTCHTMLParser(HTMLParser):
 
     def _alterURL(self, config):
         url = ""
-        parseUrl = urllib.parse.urlparse(config.url[0])
+        parseUrl = urllib.parse.urlparse(config.url)
         urlPost = urllib.parse.parse_qs(parseUrl.query, keep_blank_values=True)
         
         if config.max is not None:
@@ -52,7 +51,6 @@ class TTCHTMLParser(HTMLParser):
         urlPost["Order"] = "desc"
 
         newQuery = urllib.parse.urlencode(urlPost, doseq=True)
-        
         return self._TAMURL + newQuery
     
     def _nextPage(self, url):
@@ -60,7 +58,10 @@ class TTCHTMLParser(HTMLParser):
         urlPost = urllib.parse.parse_qs(parseUrl.query, keep_blank_values=True)
         
         # Ensure searching newest.
-        urlPost["page"] = int(urlPost["page"]) + 1
+        if urlPost["page"]:
+            urlPost["page"] = int(urlPost["page"]) + 1
+        else:
+            urlPost["page"] = 1
 
         newQuery = urllib.parse.urlencode(urlPost, doseq=True)
         
@@ -111,7 +112,7 @@ class TTCHTMLParser(HTMLParser):
             if self._indxCont == 0:
                 self.tradeList[self._indxVal]['name'] = data.strip()
             elif self._indxCont == 2:
-                self.tradeList[self._indxVal]['level'] = int(data.strip())
+                self.tradeList[self._indxVal]['level'] = data.strip()
             elif self._indxCont == 3:
                 self.tradeList[self._indxVal]['who'] = data.strip()
             elif self._indxCont == 4:
