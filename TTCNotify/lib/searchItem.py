@@ -56,7 +56,6 @@ class SearchItemProcess:
         if sys.platform.startswith('win32'):
             toaster = ToastNotifier()
             toaster.show_toast(item['name'],summary, duration=30)
-            print("Windows notify")
         else:
             notify2.init('ESO Item Notify')
             n = notify2.Notification(item['name'], summary)
