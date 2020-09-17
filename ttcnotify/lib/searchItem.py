@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 import time
 import datetime
@@ -12,12 +12,14 @@ else:
 from lib.htmlParser import TTCHTMLParser
 
 class SearchItemManager:
-    _threads = []
-    listenKey = multiprocessing.Value('l', 0)
+    def __init(self):
+        self._threads = []
+        self.listenKey = multiprocessing.Value('l', 0)
 
     def add(self, item):
-
-        searchProcess = multiprocessing.Process(name = self._getSearchItemName(item), target = SearchItemProcess, args=(item,listenKey))
+        searchProcess = multiprocessing.Process(name=self._getSearchItemName(item),
+                                                target=SearchItemProcess,
+                                                args=(item,self.listenKey))
         self._threads.append(searchProcess)
         searchProcess.start()
 
@@ -43,10 +45,9 @@ class SearchItemManager:
     def _getSearchItemName(self, item):
         parseUrl = urllib.parse.urlparse(item.url)
         urlPost = urllib.parse.parse_qs(parseUrl.query, keep_blank_values=True)
-        return urlPost["ItemNamePattern"][0]
+        return "".join([i for i in urlPost["ItemNamePattern"][0] if i.isalpha()])
 
 class SearchItemProcess:
-
     def __init__(self, item, watched):
         self._name = multiprocessing.current_process().name
         self._pid = multiprocessing.current_process().pid
