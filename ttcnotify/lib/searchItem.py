@@ -12,7 +12,7 @@ else:
 from lib.htmlParser import TTCHTMLParser
 
 class SearchItemManager:
-    def __init(self):
+    def __init__(self):
         self._threads = []
         self.listenKey = multiprocessing.Value('l', 0)
 

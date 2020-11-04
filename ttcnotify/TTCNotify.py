@@ -42,18 +42,23 @@ def main():
     itemManager = SearchItemManager()
     while True:
         arguments = input(">> ")
-        opts = argParse(arguments)
-        if hasattr(opts, 'url'):
-            itemManager.add(opts)
-        elif hasattr(opts, 'list') and opts.list is True:
-            itemManager.list()
-        elif hasattr(opts, 'pid'):
-            itemManager.remove(opts.pid)
-        elif hasattr(opts, 'watch'):
-            itemManager.watch(opts.watch)
-        elif hasattr(opts, 'quit') and opts.quit is True:
-            print("Exiting, probably with errors")
+        try:
+            opts = argParse(arguments)
+            if hasattr(opts, 'url'):
+                itemManager.add(opts)
+            elif hasattr(opts, 'list') and opts.list is True:
+                itemManager.list()
+            elif hasattr(opts, 'pid'):
+                itemManager.remove(opts.pid)
+            elif hasattr(opts, 'watch'):
+                itemManager.watch(opts.watch)
+            elif hasattr(opts, 'quit') and opts.quit is True:
+                print("Exiting, probably with errors")
+                exit()
+        except IOError:
             exit()
+        except:
+            pass
 
 if __name__ == "__main__":
     main()
